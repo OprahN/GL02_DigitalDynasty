@@ -25,31 +25,19 @@ async function getSalles(cours) {
 }
 // Fonction pour récupérer les capacités maximales d'une salle ( spec 2)
 async function getCapacite(salle, logger) {
-
-  // Créer une instance de CourseParser
   const courseParser = new CourseParser();
-
-  // Obtenir les cours parsés à partir des fichiers dans le répertoire spécifié
   const parsedCourses = await courseParser.getParsedCourses();
- 
-  // Rechercher la salle spécifiée
-  const selectedSalle = salle.toLowerCase(); // Convertir en minuscules pour la recherche insensible à la casse
-   
-  let salleCapacite = null;
 
-  for (const course of parsedCourses) {
-    for (const session of course.sessions) {
-      if (session.room.toLowerCase() === selectedSalle) {
-        salleCapacite = session.capacity;
-        break;
-      }
-    }
-    if (salleCapacite !== null) {
-      break;
-    }
-  }
-  
-return salleCapacite   
+  // Création d'un objet pour le mappage salle-capacité
+  const salleCapaciteMap = {};
+  parsedCourses.forEach(course => {
+    course.sessions.forEach(session => {
+      salleCapaciteMap[session.room.toLowerCase()] = session.capacity;
+    });
+  });
+
+  // Recherche directe de la capacité
+  return salleCapaciteMap[salle.toLowerCase()] || null;
 }
 
 module.exports = {
